@@ -80,3 +80,80 @@
 .card-curved {
   border-radius: 24px;
 }
+
+/* Background Grid Pattern */
+.bg-tech-grid {
+  background-image: 
+    linear-gradient(to right, rgba(148, 163, 184, 0.08) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(148, 163, 184, 0.08) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Glass Card */
+.glass-card {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05);
+}
+
+/* Ripple Button Effect */
+.ripple-btn {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple-btn::after {
+  content: "";
+  display: block;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, #fff 10%, transparent 10.01%);
+  background-repeat: no-repeat;
+  background-position: 50%;
+  transform: scale(10, 10);
+  opacity: 0;
+  transition: transform 0.5s, opacity 1s;
+}
+
+.ripple-btn:active::after {
+  transform: scale(0, 0);
+  opacity: 0.35;
+  transition: 0s;
+}
+
+/* Floating Hollow Circle Keyframes */
+@keyframes float-hollow {
+  0%, 100% {
+    transform: translateY(0px) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(180deg);
+  }
+}
+
+.animate-float-hollow {
+  animation: float-hollow 10s ease-in-out infinite;
+}
+
+/* Soft Animated Rectangle Keyframes */
+@keyframes soft-pulse-rect {
+  0%, 100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.35;
+  }
+  50% {
+    transform: scale(1.06) rotate(3deg);
+    opacity: 0.6;
+  }
+}
+
+.animate-soft-rect {
+  animation: soft-pulse-rect 8s ease-in-out infinite;
+}
+

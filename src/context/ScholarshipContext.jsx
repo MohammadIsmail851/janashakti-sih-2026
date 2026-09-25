@@ -91,8 +91,10 @@ export const ScholarshipProvider = ({ children }) => {
 
   const [adminMetrics, setAdminMetrics] = useState({
     totalApplications: "48,210",
-    dbtDisbursedTotal: "₹142.8 Cr",
     pendingVerifications: 342,
+    approvedCases: "44,120",
+    rejectedCases: "3,748",
+    dbtDisbursedTotal: "₹142.8 Cr",
     activeSchemesCount: 5,
     topInstitutesNotified: 260
   });

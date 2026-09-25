@@ -9,22 +9,38 @@ import {
   Sparkles, 
   ShieldCheck, 
   Layers,
-  ArrowRight
+  ArrowRight,
+  ShieldAlert,
+  AlertTriangle,
+  ScanLine
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useScholarship } from '../context/ScholarshipContext';
+import { ConflictResolutionDialog } from '../components/common/ConflictResolutionDialog';
 
 export const ScholarshipsScreen = () => {
   const navigate = useNavigate();
   const { t } = useLanguage();
   const { schemes, student } = useScholarship();
   const [filter, setFilter] = useState('all'); // 'all' | 'enrolled' | 'eligible'
+  const [conflictOpen, setConflictOpen] = useState(false);
+  const [conflictScheme, setConflictScheme] = useState(null);
 
   const filteredSchemes = schemes.filter(scheme => {
     if (filter === 'enrolled') return scheme.id === student.activeSchemeId;
     if (filter === 'eligible') return scheme.id !== 'pre-matric';
     return true;
   });
+
+  const handleSchemeClick = (scheme) => {
+    // Simulate conflict detection for "Post-Matric" scheme (student already has state scholarship)
+    if (scheme.id === 'post-matric' && !scheme._conflictResolved) {
+      setConflictScheme(scheme.name);
+      setConflictOpen(true);
+    } else {
+      navigate(`/scholarships/${scheme.id}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-surface-bg pb-24 lg:pb-12 pt-3 px-4 sm:px-6 lg:px-8">
@@ -40,9 +56,38 @@ export const ScholarshipsScreen = () => {
               Unified Portfolios • Ministry of Tribal Affairs
             </p>
           </div>
-          <span className="self-start sm:self-center text-xs font-bold text-blue-700 bg-blue-100 px-3 py-1 rounded-full">
-            NSP 2.0 Unified
-          </span>
+          <div className="flex items-center space-x-2">
+            <span className="self-start sm:self-center text-xs font-bold text-blue-700 bg-blue-100 px-3 py-1 rounded-full">
+              NSP 2.0 Unified
+            </span>
+            <button
+              onClick={() => navigate('/deficiency-detector')}
+              className="flex items-center space-x-1.5 text-xs font-bold text-violet-700 bg-violet-100 hover:bg-violet-200 px-3 py-1 rounded-full transition-colors haptic-press"
+            >
+              <ScanLine className="w-3.5 h-3.5" />
+              <span>Check Docs</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Conflict Alert Banner */}
+        <div
+          onClick={() => { setConflictScheme('Post-Matric Scholarship'); setConflictOpen(true); }}
+          className="bg-rose-50 border border-rose-200 rounded-2xl p-4 flex items-start space-x-3 cursor-pointer hover:bg-rose-100 transition-colors haptic-press"
+        >
+          <div className="w-9 h-9 rounded-xl bg-rose-100 flex items-center justify-center flex-shrink-0">
+            <ShieldAlert className="w-4.5 h-4.5 text-rose-600" />
+          </div>
+          <div className="flex-1">
+            <div className="flex items-center space-x-2">
+              <span className="text-xs font-bold text-rose-800">Conflict Detected — Dual Benefit Risk</span>
+              <span className="text-[9px] font-bold bg-rose-200 text-rose-900 px-1.5 py-0.5 rounded-full">ACTION REQUIRED</span>
+            </div>
+            <p className="text-[11px] text-rose-700 mt-0.5">
+              A conflicting state scholarship (Odisha ST Post-Matric) detected for your Aadhaar. Resolve before applying for any central MoTA scheme.
+            </p>
+          </div>
+          <ChevronRight className="w-4 h-4 text-rose-400 flex-shrink-0 mt-1" />
         </div>
 
         {/* Filter Pills */}
@@ -83,15 +128,18 @@ export const ScholarshipsScreen = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {filteredSchemes.map((scheme) => {
             const isEnrolled = scheme.id === student.activeSchemeId;
+            const hasConflict = scheme.id === 'post-matric';
 
             return (
               <motion.div
                 key={scheme.id}
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
-                onClick={() => navigate(`/scholarships/${scheme.id}`)}
+                onClick={() => handleSchemeClick(scheme)}
                 className={`bg-white rounded-card p-5 sm:p-6 border transition-all cursor-pointer shadow-soft hover:shadow-soft-lg flex flex-col justify-between haptic-press ${
-                  isEnrolled ? 'border-blue-400 ring-2 ring-blue-500/10' : 'border-slate-200/80'
+                  isEnrolled ? 'border-blue-400 ring-2 ring-blue-500/10' : 
+                  hasConflict ? 'border-rose-300 ring-1 ring-rose-200' :
+                  'border-slate-200/80'
                 }`}
               >
                 <div>
@@ -104,17 +152,24 @@ export const ScholarshipsScreen = () => {
                         {scheme.level}
                       </span>
                     </div>
-                    <span
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
-                        isEnrolled
-                          ? 'bg-blue-100 text-blue-700'
-                          : scheme.id === 'pre-matric'
-                          ? 'bg-slate-100 text-slate-600'
-                          : 'bg-emerald-100 text-emerald-800'
-                      }`}
-                    >
-                      {scheme.status}
-                    </span>
+                    <div className="flex items-center space-x-1.5">
+                      {hasConflict && (
+                        <AlertTriangle className="w-4 h-4 text-rose-500" />
+                      )}
+                      <span
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold ${
+                          isEnrolled
+                            ? 'bg-blue-100 text-blue-700'
+                            : hasConflict
+                            ? 'bg-rose-100 text-rose-700'
+                            : scheme.id === 'pre-matric'
+                            ? 'bg-slate-100 text-slate-600'
+                            : 'bg-emerald-100 text-emerald-800'
+                        }`}
+                      >
+                        {hasConflict ? 'Conflict ⚠' : scheme.status}
+                      </span>
+                    </div>
                   </div>
 
                   <div className="mt-3.5">
@@ -145,6 +200,8 @@ export const ScholarshipsScreen = () => {
                           className={`h-full rounded-full transition-all duration-500 ${
                             scheme.progress === 100
                               ? 'bg-emerald-500'
+                              : hasConflict
+                              ? 'bg-rose-400'
                               : 'bg-gradient-to-r from-blue-600 to-sky-500'
                           }`}
                           style={{ width: `${scheme.progress}%` }}
@@ -167,8 +224,8 @@ export const ScholarshipsScreen = () => {
                     <Clock className="w-3.5 h-3.5 text-amber-500 shrink-0" />
                     <span className="truncate text-xs">{scheme.nextAction}</span>
                   </div>
-                  <span className="text-blue-600 font-bold flex items-center text-xs shrink-0">
-                    {t('viewDetails')}
+                  <span className={`font-bold flex items-center text-xs shrink-0 ${hasConflict ? 'text-rose-600' : 'text-blue-600'}`}>
+                    {hasConflict ? 'Resolve Conflict' : t('viewDetails')}
                     <ChevronRight className="w-4 h-4 ml-0.5" />
                   </span>
                 </div>
@@ -178,6 +235,19 @@ export const ScholarshipsScreen = () => {
         </div>
 
       </div>
+
+      {/* Conflict Resolution Dialog */}
+      <ConflictResolutionDialog
+        isOpen={conflictOpen}
+        onClose={() => setConflictOpen(false)}
+        schemeName={conflictScheme}
+        onResolved={(choice) => {
+          setConflictOpen(false);
+          if (choice === 'central') {
+            navigate('/scholarships/post-matric');
+          }
+        }}
+      />
     </div>
   );
 };

@@ -4,13 +4,17 @@ const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
   const [currentUser, setCurrentUser] = useState(() => {
+    const isAuth = localStorage.getItem('janashakti_is_auth');
+    if (isAuth === 'false') {
+      return null;
+    }
     const saved = localStorage.getItem('janashakti_auth_user');
     if (saved) {
       try {
         return JSON.parse(saved);
       } catch (e) {}
     }
-    // Default to student Aarav Hembram
+    // Default to student Aarav Hembram for demo evaluation
     return {
       role: 'student',
       id: 'ST-2025-OD-8921',
@@ -22,11 +26,12 @@ export const AuthProvider = ({ children }) => {
   });
 
   const [isAuthenticated, setIsAuthenticated] = useState(() => {
-    return localStorage.getItem('janashakti_is_auth') !== 'false';
+    const isAuth = localStorage.getItem('janashakti_is_auth');
+    return isAuth !== 'false';
   });
 
   useEffect(() => {
-    if (currentUser) {
+    if (currentUser && isAuthenticated) {
       localStorage.setItem('janashakti_auth_user', JSON.stringify(currentUser));
       localStorage.setItem('janashakti_is_auth', 'true');
     } else {
@@ -46,6 +51,8 @@ export const AuthProvider = ({ children }) => {
     };
     setCurrentUser(studentUser);
     setIsAuthenticated(true);
+    localStorage.setItem('janashakti_auth_user', JSON.stringify(studentUser));
+    localStorage.setItem('janashakti_is_auth', 'true');
   };
 
   const loginAsAdmin = () => {
@@ -60,10 +67,14 @@ export const AuthProvider = ({ children }) => {
     };
     setCurrentUser(adminUser);
     setIsAuthenticated(true);
+    localStorage.setItem('janashakti_auth_user', JSON.stringify(adminUser));
+    localStorage.setItem('janashakti_is_auth', 'true');
   };
 
   const logout = () => {
+    setCurrentUser(null);
     setIsAuthenticated(false);
+    localStorage.removeItem('janashakti_auth_user');
     localStorage.setItem('janashakti_is_auth', 'false');
   };
 

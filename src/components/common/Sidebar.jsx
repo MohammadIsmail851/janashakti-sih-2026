@@ -15,7 +15,9 @@ import {
   Check, 
   DownloadCloud,
   ChevronRight,
-  ExternalLink
+  ExternalLink,
+  Radar,
+  ScanLine
 } from 'lucide-react';
 import { useLanguage } from '../../context/LanguageContext';
 import { useAuth } from '../../context/AuthContext';
@@ -40,6 +42,11 @@ export const Sidebar = () => {
     { id: 'notifications', label: t('navNotifications'), icon: Bell, path: '/notifications', count: unreadNotifsCount },
     { id: 'profile', label: t('navProfile'), icon: User, path: '/profile' },
     { id: 'admin', label: t('navAdmin'), icon: ShieldAlert, path: '/admin', highlight: true },
+  ];
+
+  const aiToolItems = [
+    { id: 'deficiency', label: 'Deficiency Detector', icon: ScanLine, path: '/deficiency-detector', badge: 'AI' },
+    { id: 'scholarreach', label: 'ScholarReach AI', icon: Radar, path: '/scholarreach', badge: 'AI', adminOnly: true },
   ];
 
   const languages = [
@@ -171,6 +178,40 @@ export const Sidebar = () => {
             </button>
           );
         })}
+
+        {/* AI Tools Section */}
+        <div className="pt-3 pb-1">
+          <div className="px-3 py-1 text-[10px] font-bold text-violet-400 uppercase tracking-wider">
+            AI Tools
+          </div>
+          {aiToolItems.filter(item => !item.adminOnly || isAdmin).map((item) => {
+            const Icon = item.icon;
+            const isActive = location.pathname === item.path;
+            return (
+              <button
+                key={item.id}
+                onClick={() => navigate(item.path)}
+                className={`w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl text-xs font-semibold transition-all haptic-press mt-1 ${
+                  isActive
+                    ? 'bg-violet-600 text-white shadow-md shadow-violet-600/20 font-bold'
+                    : 'text-violet-700 hover:bg-violet-50 hover:text-violet-900'
+                }`}
+              >
+                <div className="flex items-center space-x-3">
+                  <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-violet-500'}`} />
+                  <span>{item.label}</span>
+                </div>
+                {item.badge && (
+                  <span className={`text-[10px] font-extrabold px-1.5 py-0.5 rounded-full ${
+                    isActive ? 'bg-white/20 text-white' : 'bg-violet-100 text-violet-700'
+                  }`}>
+                    {item.badge}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
       </nav>
 
       {/* Language Selection & PWA Install in Sidebar Footer */}

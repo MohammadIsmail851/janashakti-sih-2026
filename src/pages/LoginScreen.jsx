@@ -157,6 +157,32 @@ export const LoginScreen = () => {
                 <span>{isSubmitting ? 'Authenticating...' : 'Sign In as Student'}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
+
+              {/* DigiLocker separator */}
+              <div className="relative flex items-center">
+                <div className="flex-1 h-px bg-slate-700" />
+                <span className="px-3 text-[10px] text-slate-500 font-medium">or continue with</span>
+                <div className="flex-1 h-px bg-slate-700" />
+              </div>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  setIsSubmitting(true);
+                  showToast('Connecting to DigiLocker OAuth Gateway...', 'info');
+                  await new Promise(res => setTimeout(res, 900));
+                  loginAsStudent();
+                  setIsSubmitting(false);
+                  showToast('DigiLocker linked successfully!', 'success');
+                  navigate('/digilocker-onboarding');
+                }}
+                disabled={isSubmitting}
+                className="w-full py-3 rounded-xl bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 font-bold text-xs flex items-center justify-center space-x-2 border border-emerald-800/60 transition-all haptic-press"
+              >
+                <ShieldCheck className="w-4 h-4" />
+                <span>Login via DigiLocker</span>
+                <span className="text-[9px] bg-emerald-800/60 px-1.5 py-0.5 rounded-full">OAuth 2.0</span>
+              </button>
             </form>
           ) : (
             <form onSubmit={handleAdminSubmit} className="space-y-4">

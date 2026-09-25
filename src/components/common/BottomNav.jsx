@@ -3,17 +3,19 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { LayoutDashboard, GraduationCap, FolderLock, ShieldCheck, Sparkles } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useLanguage } from '../../context/LanguageContext';
+import { useAuth } from '../../context/AuthContext';
 
 export const BottomNav = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useLanguage();
+  const { isAdmin } = useAuth();
 
-  if (location.pathname === '/splash' || location.pathname === '/login') {
+  if (location.pathname === '/splash' || location.pathname === '/login' || location.pathname === '/digilocker-onboarding') {
     return null;
   }
 
-  const navItems = [
+  const studentNavItems = [
     {
       id: 'home',
       label: t('navHome'),
@@ -46,6 +48,36 @@ export const BottomNav = () => {
       special: true,
     },
   ];
+
+  const adminNavItems = [
+    {
+      id: 'admin',
+      label: 'Admin Desk',
+      icon: LayoutDashboard,
+      path: '/admin',
+    },
+    {
+      id: 'scholarreach',
+      label: 'ScholarReach',
+      icon: Sparkles,
+      path: '/scholarreach',
+      special: true,
+    },
+    {
+      id: 'verification',
+      label: 'AISHE Clearing',
+      icon: ShieldCheck,
+      path: '/verification',
+    },
+    {
+      id: 'profile',
+      label: 'MoTA Profile',
+      icon: GraduationCap,
+      path: '/profile',
+    },
+  ];
+
+  const navItems = isAdmin ? adminNavItems : studentNavItems;
 
   return (
     <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-40 glass-nav px-3 py-2 pb-safe border-t border-slate-200/80">

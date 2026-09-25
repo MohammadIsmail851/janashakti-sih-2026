@@ -43,32 +43,32 @@ export const ProfileScreen = () => {
         <div className="bg-white rounded-card p-6 border border-slate-200/80 shadow-soft text-center relative overflow-hidden">
           <div className="relative w-24 h-24 mx-auto rounded-3xl overflow-hidden ring-4 ring-blue-500/20 shadow-md">
             <img
-              src={student.avatar}
-              alt={student.name}
+              src={isAdmin ? currentUser?.avatar : student.avatar}
+              alt={isAdmin ? currentUser?.name : student.name}
               className="w-full h-full object-cover"
             />
-            <div className="absolute bottom-0 inset-x-0 bg-blue-600/90 text-white text-[9px] font-bold py-0.5">
-              {t('stVerified')}
+            <div className={`absolute bottom-0 inset-x-0 text-white text-[9px] font-bold py-0.5 ${isAdmin ? 'bg-amber-600' : 'bg-blue-600/90'}`}>
+              {isAdmin ? 'MoTA PMU' : t('stVerified')}
             </div>
           </div>
 
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 mt-3 font-['Plus_Jakarta_Sans',sans-serif]">
-            {student.name}
+            {isAdmin ? currentUser?.name : student.name}
           </h2>
           <div className="text-xs text-blue-600 font-semibold mt-0.5">
-            {student.hindiName} • {student.odiaName}
+            {isAdmin ? (currentUser?.designation || "Director (Scholarships & DBT PMU)") : `${student.hindiName} • ${student.odiaName}`}
           </div>
 
           <div className="mt-3 flex items-center justify-center space-x-2 flex-wrap gap-y-1">
-            <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
-              {student.category} ({student.subTribe})
+            <span className={`px-3 py-1 rounded-full text-xs font-bold ${isAdmin ? 'bg-amber-100 text-amber-900 border border-amber-300' : 'bg-amber-100 text-amber-800'}`}>
+              {isAdmin ? (currentUser?.department || "Ministry of Tribal Affairs") : `${student.category} (${student.subTribe})`}
             </span>
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700">
-              ID: {student.id}
+              ID: {isAdmin ? currentUser?.id : student.id}
             </span>
             <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 flex items-center">
               <ShieldCheck className="w-3.5 h-3.5 mr-1" />
-              UIDAI e-KYC
+              {isAdmin ? "2FA Verified Official" : "UIDAI e-KYC"}
             </span>
           </div>
         </div>

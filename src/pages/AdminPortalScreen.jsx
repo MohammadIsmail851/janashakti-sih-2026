@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShieldCheck, 
@@ -17,14 +18,37 @@ import {
   ExternalLink,
   Building2,
   ChevronRight,
-  X
+  X,
+  Radar,
+  MapPin,
+  Activity,
+  AlertCircle,
+  ArrowRight,
+  BarChart2
 } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 import { useScholarship } from '../context/ScholarshipContext';
 import { useAuth } from '../context/AuthContext';
 import { useNotifications } from '../context/NotificationContext';
 
+const DISTRICT_PENDING_DATA = [
+  { district: 'Mayurbhanj', state: 'Odisha', pending: 86, total: 4200, priority: 'Critical', slaHours: 48, status: 'Overdue Risk' },
+  { district: 'Bastar', state: 'Chhattisgarh', pending: 64, total: 3100, priority: 'High', slaHours: 24, status: 'SLA Active' },
+  { district: 'Koraput', state: 'Odisha', pending: 52, total: 2950, priority: 'High', slaHours: 36, status: 'SLA Active' },
+  { district: 'Nandurbar', state: 'Maharashtra', pending: 45, total: 3800, priority: 'Medium', slaHours: 72, status: 'Normal' },
+  { district: 'Sundargarh', state: 'Odisha', pending: 38, total: 3400, priority: 'Normal', slaHours: 96, status: 'Normal' },
+  { district: 'West Singhbhum', state: 'Jharkhand', pending: 31, total: 2800, priority: 'Normal', slaHours: 84, status: 'Normal' },
+];
+
+const WORKLOAD_DISTRIBUTION = [
+  { stage: 'Institute AISHE Nodal', activeOfficers: 8, pendingCases: 142, avgSpeed: '1.2 days', capacity: 78 },
+  { stage: 'District Tribal Welfare Officer', activeOfficers: 6, pendingCases: 98, avgSpeed: '1.9 days', capacity: 85 },
+  { stage: 'State Directorate Portal', activeOfficers: 5, pendingCases: 64, avgSpeed: '2.1 days', capacity: 62 },
+  { stage: 'MoTA Central PMU (Aadhaar APBS)', activeOfficers: 5, pendingCases: 38, avgSpeed: '0.8 days', capacity: 44 }
+];
+
 export const AdminPortalScreen = () => {
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const { 
     adminQueue, 
@@ -118,40 +142,179 @@ export const AdminPortalScreen = () => {
 
           <div className="bg-white p-4 rounded-card border border-slate-200/80 shadow-soft">
             <div className="flex items-center justify-between text-slate-500 text-xs mb-2">
-              <span className="font-semibold">{t('dbtDisbursedTotal')}</span>
-              <CreditCard className="w-4 h-4 text-emerald-600" />
-            </div>
-            <div className="text-2xl font-black text-emerald-600 font-['Plus_Jakarta_Sans',sans-serif]">
-              {adminMetrics.dbtDisbursedTotal}
-            </div>
-            <div className="mt-2 text-[10px] text-slate-500 font-medium">
-              100% via Aadhaar APBS Gateway
-            </div>
-          </div>
-
-          <div className="bg-white p-4 rounded-card border border-slate-200/80 shadow-soft">
-            <div className="flex items-center justify-between text-slate-500 text-xs mb-2">
               <span className="font-semibold">{t('pendingVerifications')}</span>
               <Clock className="w-4 h-4 text-amber-600" />
             </div>
             <div className="text-2xl font-black text-amber-600 font-['Plus_Jakarta_Sans',sans-serif]">
               {adminMetrics.pendingVerifications}
             </div>
-            <div className="mt-2 text-[10px] text-amber-700 font-bold">
+            <div className="mt-2 text-[10px] text-amber-700 font-bold flex items-center">
+              <Activity className="w-3 h-3 mr-1" />
               Avg Turnaround: 2.4 Days
             </div>
           </div>
 
           <div className="bg-white p-4 rounded-card border border-slate-200/80 shadow-soft">
             <div className="flex items-center justify-between text-slate-500 text-xs mb-2">
-              <span className="font-semibold">Top Institutes Active</span>
-              <Building2 className="w-4 h-4 text-purple-600" />
+              <span className="font-semibold">Approved Cases</span>
+              <CheckCircle2 className="w-4 h-4 text-emerald-600" />
             </div>
-            <div className="text-2xl font-black text-purple-700 font-['Plus_Jakarta_Sans',sans-serif]">
-              {adminMetrics.topInstitutesNotified}
+            <div className="text-2xl font-black text-emerald-600 font-['Plus_Jakarta_Sans',sans-serif]">
+              {adminMetrics.approvedCases || '44,120'}
             </div>
-            <div className="mt-2 text-[10px] text-slate-500 font-medium">
-              IITs, NITs, IIMs, AIIMS, NLUs
+            <div className="mt-2 text-[10px] text-emerald-700 font-bold">
+              91.5% Direct-to-Bank Rate
+            </div>
+          </div>
+
+          <div className="bg-white p-4 rounded-card border border-slate-200/80 shadow-soft">
+            <div className="flex items-center justify-between text-slate-500 text-xs mb-2">
+              <span className="font-semibold">Rejected Cases</span>
+              <XCircle className="w-4 h-4 text-rose-600" />
+            </div>
+            <div className="text-2xl font-black text-rose-600 font-['Plus_Jakarta_Sans',sans-serif]">
+              {adminMetrics.rejectedCases || '3,748'}
+            </div>
+            <div className="mt-2 text-[10px] text-rose-700 font-medium">
+              Deficiency cure rate: 68%
+            </div>
+          </div>
+        </div>
+
+        {/* ScholarReach AI Integration Callout */}
+        <div className="bg-gradient-to-r from-blue-900 via-indigo-950 to-slate-900 rounded-card p-5 text-white shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 border border-blue-800/50">
+          <div className="flex items-start space-x-3.5">
+            <div className="w-10 h-10 rounded-2xl bg-blue-500/20 border border-blue-400/30 flex items-center justify-center flex-shrink-0">
+              <Radar className="w-5 h-5 text-blue-400 animate-spin" style={{ animationDuration: '6s' }} />
+            </div>
+            <div>
+              <div className="flex items-center space-x-2">
+                <span className="text-xs font-bold text-blue-300 uppercase tracking-wider">ScholarReach AI Live Scan</span>
+                <span className="text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-400/40 px-2 py-0.5 rounded-full">
+                  5 High-Risk Students Identified
+                </span>
+              </div>
+              <p className="text-xs text-slate-300 mt-1 max-w-2xl leading-relaxed">
+                Matched APAAR, UDISE+, and MoTA scholarship records. 5 eligible Scheduled Tribe students found in Mayurbhanj, Bastar, Dumka, Kawardha, and Alluri Sitharama Raju who are not receiving entitlements.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate('/scholarreach')}
+            className="self-start md:self-center px-4 py-2.5 rounded-xl bg-blue-500 hover:bg-blue-400 text-white font-bold text-xs flex items-center space-x-2 transition-all shadow-lg shadow-blue-500/30 flex-shrink-0 haptic-press"
+          >
+            <span>Launch Outreach Desk</span>
+            <ArrowRight className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Analytics Deep-Dive: District-Wise Applications & Verification Workload */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+          {/* District-wise Pending & High-Priority Districts */}
+          <div className="bg-white rounded-card border border-slate-200/80 shadow-soft p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <MapPin className="w-4 h-4 text-blue-600" />
+                  <h3 className="text-sm font-bold text-slate-900 font-['Plus_Jakarta_Sans',sans-serif]">
+                    District-Wise Pending Applications
+                  </h3>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  High-Priority Tribal Districts with SLA Urgency
+                </p>
+              </div>
+              <span className="text-[10px] font-bold bg-rose-50 text-rose-700 border border-rose-200 px-2 py-1 rounded-full flex items-center">
+                <AlertCircle className="w-3 h-3 mr-1" />
+                3 High-Priority
+              </span>
+            </div>
+
+            <div className="space-y-3">
+              {DISTRICT_PENDING_DATA.map((dist) => {
+                const percent = Math.min(100, Math.round((dist.pending / 100) * 100));
+                const isOverdue = dist.priority === 'Critical';
+                const isHigh = dist.priority === 'High';
+
+                return (
+                  <div key={dist.district} className="p-2.5 rounded-xl bg-slate-50/70 border border-slate-100 hover:bg-slate-100/60 transition-colors">
+                    <div className="flex items-center justify-between text-xs mb-1.5">
+                      <div className="flex items-center space-x-2">
+                        <span className="font-bold text-slate-900">{dist.district}</span>
+                        <span className="text-[10px] text-slate-500">({dist.state})</span>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <span className="font-mono font-bold text-slate-800">{dist.pending} pending</span>
+                        <span
+                          className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full ${
+                            isOverdue
+                              ? 'bg-rose-100 text-rose-800 border border-rose-300'
+                              : isHigh
+                              ? 'bg-amber-100 text-amber-800 border border-amber-300'
+                              : 'bg-slate-200 text-slate-700'
+                          }`}
+                        >
+                          {dist.priority} • {dist.status}
+                        </span>
+                      </div>
+                    </div>
+                    {/* Progress Bar */}
+                    <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                      <div
+                        className={`h-full rounded-full ${
+                          isOverdue ? 'bg-rose-500' : isHigh ? 'bg-amber-500' : 'bg-blue-600'
+                        }`}
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Verification Workload Distribution */}
+          <div className="bg-white rounded-card border border-slate-200/80 shadow-soft p-5 space-y-4">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+              <div>
+                <div className="flex items-center space-x-2">
+                  <Activity className="w-4 h-4 text-purple-600" />
+                  <h3 className="text-sm font-bold text-slate-900 font-['Plus_Jakarta_Sans',sans-serif]">
+                    Verification Workload & Nodal Capacity
+                  </h3>
+                </div>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Pipeline distribution across Nodal tiers & AISHE clearing
+                </p>
+              </div>
+              <span className="text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-1 rounded-full">
+                SLA Health: 92.4%
+              </span>
+            </div>
+
+            <div className="space-y-3.5">
+              {WORKLOAD_DISTRIBUTION.map((item) => (
+                <div key={item.stage} className="p-3 rounded-xl bg-slate-50/70 border border-slate-100 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-bold text-slate-800">{item.stage}</span>
+                    <span className="font-mono text-[11px] text-purple-700 font-bold">
+                      {item.pendingCases} cases ({item.avgSpeed} avg)
+                    </span>
+                  </div>
+                  <div className="flex items-center justify-between text-[11px] text-slate-500">
+                    <span>{item.activeOfficers} Active Officers</span>
+                    <span className="font-bold text-slate-700">{item.capacity}% Capacity Load</span>
+                  </div>
+                  <div className="w-full h-2 bg-slate-200 rounded-full overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${
+                        item.capacity > 80 ? 'bg-amber-500' : 'bg-purple-600'
+                      }`}
+                      style={{ width: `${item.capacity}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

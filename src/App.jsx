@@ -29,19 +29,44 @@ import { ChatbotScreen } from './pages/ChatbotScreen';
 import { NotificationsScreen } from './pages/NotificationsScreen';
 import { ProfileScreen } from './pages/ProfileScreen';
 import { AdminPortalScreen } from './pages/AdminPortalScreen';
+import { DigiLockerOnboardingScreen } from './pages/DigiLockerOnboardingScreen';
+import { ScholarReachAIScreen } from './pages/ScholarReachAIScreen';
+import { DeficiencyDetectorScreen } from './pages/DeficiencyDetectorScreen';
+
+import { motion, AnimatePresence } from 'framer-motion';
 
 const MainLayout = () => {
   const location = useLocation();
-  const isAuthScreen = location.pathname === '/splash' || location.pathname === '/login';
+  const { isAuthenticated, isAdmin } = useAuth();
+  const isAuthScreen = location.pathname === '/splash' || location.pathname === '/login' || location.pathname === '/digilocker-onboarding';
+
+  if (!isAuthenticated && !isAuthScreen) {
+    return <Navigate to="/login" replace />;
+  }
+
+  if (isAuthenticated && location.pathname === '/login') {
+    return <Navigate to={isAdmin ? '/admin' : '/home'} replace />;
+  }
 
   if (isAuthScreen) {
     return (
       <main className="min-h-screen bg-slate-900">
-        <Routes>
-          <Route path="/splash" element={<SplashScreen />} />
-          <Route path="/login" element={<LoginScreen />} />
-          <Route path="*" element={<Navigate to="/login" replace />} />
-        </Routes>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={location.pathname}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <Routes location={location}>
+              <Route path="/splash" element={<SplashScreen />} />
+              <Route path="/login" element={<LoginScreen />} />
+              <Route path="/digilocker-onboarding" element={<DigiLockerOnboardingScreen />} />
+              <Route path="*" element={<Navigate to="/login" replace />} />
+            </Routes>
+          </motion.div>
+        </AnimatePresence>
         <Toast />
       </main>
     );
@@ -57,21 +82,34 @@ const MainLayout = () => {
         <Header />
 
         <main className="flex-1 overflow-y-auto">
-          <Routes>
-            <Route path="/" element={<Navigate to="/home" replace />} />
-            <Route path="/home" element={<HomeScreen />} />
-            <Route path="/scholarships" element={<ScholarshipsScreen />} />
-            <Route path="/scholarships/:schemeId" element={<ScholarshipDetailScreen />} />
-            <Route path="/wallet" element={<WalletScreen />} />
-            <Route path="/verification" element={<VerificationCenterScreen />} />
-            <Route path="/dbt" element={<DbtTimelineScreen />} />
-            <Route path="/chatbot" element={<ChatbotScreen />} />
-            <Route path="/notifications" element={<NotificationsScreen />} />
-            <Route path="/profile" element={<ProfileScreen />} />
-            <Route path="/admin" element={<AdminPortalScreen />} />
-            
-            <Route path="*" element={<Navigate to="/home" replace />} />
-          </Routes>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.22, ease: "easeOut" }}
+              className="w-full"
+            >
+              <Routes location={location}>
+                <Route path="/" element={<Navigate to={isAdmin ? "/admin" : "/home"} replace />} />
+                <Route path="/home" element={<HomeScreen />} />
+                <Route path="/scholarships" element={<ScholarshipsScreen />} />
+                <Route path="/scholarships/:schemeId" element={<ScholarshipDetailScreen />} />
+                <Route path="/wallet" element={<WalletScreen />} />
+                <Route path="/verification" element={<VerificationCenterScreen />} />
+                <Route path="/dbt" element={<DbtTimelineScreen />} />
+                <Route path="/chatbot" element={<ChatbotScreen />} />
+                <Route path="/notifications" element={<NotificationsScreen />} />
+                <Route path="/profile" element={<ProfileScreen />} />
+                <Route path="/admin" element={<AdminPortalScreen />} />
+                <Route path="/scholarreach" element={<ScholarReachAIScreen />} />
+                <Route path="/deficiency-detector" element={<DeficiencyDetectorScreen />} />
+
+                <Route path="*" element={<Navigate to={isAdmin ? "/admin" : "/home"} replace />} />
+              </Routes>
+            </motion.div>
+          </AnimatePresence>
         </main>
 
         {/* Bottom Nav for Mobile / Tablet (< lg) */}

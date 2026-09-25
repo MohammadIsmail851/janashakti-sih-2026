@@ -1,0 +1,24 @@
+{
+  "name": "JanaShakti - Unified Tribal Scholarship Portal",
+  "short_name": "JanaShakti",
+  "description": "Unified Scholarship Mobile Application for Scheduled Tribe Students (Ministry of Tribal Affairs, Govt of India)",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F8FAFC",
+  "theme_color": "#2563EB",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/pwa-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/pwa-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
